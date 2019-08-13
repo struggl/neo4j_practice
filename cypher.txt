@@ -1,6 +1,49 @@
-一、节点语法
+一、节点语法：一个节点可有多标签、多属性
+说明：使用一对圆括号来表示节点
+
 #匿名节点
 ()
-#使查询到的节点名称为tmp
-(tmp)
-#
+#使查询到的节点全局变量名为movie
+(movie)
+#根据标签Movie查找节点,暂时命名为movie
+(movie:Movie)
+#根据标签Movie和属性列表(key/value对,value可以为数组)查找节点，暂时命名为movie
+(movie:Movie {title:"The Matrix"})#双引号可以改为单引号
+
+
+
+二、关系语法:一个关系仅有一个类型，可有多属性、可有方向，但两节点可以有多个关系
+说明：使用一对短横线(--)来表示一个无方向关系，-->或<--表示有方向关系
+方括号[...]用于添加详情，可以指定临时变量名称、关系的属性、关系类型等
+
+#仅表示两个节点存在(有向或无向)联系
+-->或--或<--
+#对关系类型并临时命名为role
+-[role]->
+#指定关系的类型为ACTED_IN并把类型临时命名为role
+-[role:ACTED_IN]->
+#指定关系类型为ACTED_INI,关系属性(key/value对,value可以为数组)并把类型临时命名为role
+-[role:ACTED_IN {roles: ["Neo"]}]->
+
+
+
+三、使用create创建节点和关系并检索
+#无论是节点还是关系，尽量不要用中文，实在要用，属性列表里面用即可，属性名不可加引号，
+#属性值可以为java基本类型或容器，若为中文需要引号。
+#另外，无论使节点还是关系，属性列表中最好有name属性
+
+
+#使用create创建节点,node_name为全局变量名，在建立节点关系时需要通过这个变量名来索引到具体的节点
+#node_label是节点的标签，可以有多个
+create (node_name:node_label1:node_label2 {k1:v1,k2:v2});
+
+*使用create创建关系,起止节点node_start、node_end必须为已经定义好的节点的全局变量名
+#RelationshipType_Name为关系类型的名称
+create (node_start)-[:RelationshipType_Name {k1:v1,k2:v2}]->(node_end);
+
+
+#示例
+create (Chou:Mylabel {name:'星爷',代表作:'唐伯虎点秋香',帅不帅:'帅'});
+create (Qiang:Mylabel {name:'小强',代表作:'唐伯虎点秋香'});
+create (Chou)-[:ACTION {name:'欺负'}]->(Qiang);
+MATCH (start_node)-[action:ACTION]->(end_node:Mylabel) return start_node.name,action.name,end_node.name;
